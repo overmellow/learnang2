@@ -1,0 +1,57 @@
+<div class="row">
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+
+      <div class="list-group">
+        <div class="list-group-item">
+          <button class="btn btn-default btn-block btn-xs" data-toggle="modal" data-target="#myModal" >
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Conversation
+          </button>
+        </div>
+        <a *ngFor="let conversation of conversations" class="list-group-item" (click)="onSelect(conversation)" [class.active]="conversation === selectedConversation">
+          {{conversation.conversationPartners[0].name}}
+          <span class="badge" *ngIf="conversation.newMessageNotification">{{conversation.newMessageNotification}}</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+  <div class="col-sm-8">
+
+    <div class="panel panel-default">
+      <div class="panel-heading" *ngIf="selectedConversation">
+        {{selectedConversation.conversationPartners[0].name}} - {{selectedConversation._id}}
+        <div class="btn-group pull-right" role="group">
+          <a class="btn btn-default btn-xs" (click)="createNewConversation()" >Create New Conversation</a>
+         <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+           <span class="glyphicon glyphicon-option-vertical"></span>
+         </button>
+         <ul class="dropdown-menu">
+           <li><a (click)="clearMessages(selectedConversation._id)">Clear Messages</a></li>
+           <li><a (click)="deleteConversation(selectedConversation._id)">Delete Conversation</a></li>
+         </ul>
+       </div>
+      </div>
+
+      <div class="panel-body conversation-div" id="mydiv" *ngIf="selectedConversation">
+        <div class="message-div" *ngFor="let message of selectedConversation.actualmessages" [class.pull-right]="authService.loggedInUserInfo.user.id == message.senderId">
+          <span class="message-span" [ngClass]="authService.loggedInUserInfo.user.id == message.senderId ? 'my-message' : 'not-my-message'">{{message.message}}</span>
+        </div>
+      </div>
+
+      <div class="panel-body" *ngIf="!selectedConversation" style="min-height: 200px; max-height: 200px;overflow-y: scroll;" >
+        Please select a conversation to start messaging
+      </div>
+      <div class="panel-footer" *ngIf="selectedConversation">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Message" #newMessage />
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button"(click)="sendMessage(newMessage.value); newMessage.value='';">Send</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<new-conversation (onSelectedContact)="onSelectedContact($event)"></new-conversation>

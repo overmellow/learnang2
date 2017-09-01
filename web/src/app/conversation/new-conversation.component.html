@@ -1,0 +1,20 @@
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <!-- <h4 class="modal-title" id="myModalLabel">Search</h4> -->
+        <div class="form-group">
+          <input type="text" #searchName class="form-control" id="search" placeholder="Search" (keyup)="search(searchName.value)">
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="list-group" >
+          <a *ngFor="let contact of contacts | async" class="list-group-item" (click)="openConversation(contact)"  data-dismiss="modal">
+            {{contact.name}}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

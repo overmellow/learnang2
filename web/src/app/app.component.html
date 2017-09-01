@@ -1,0 +1,42 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">{{title}}</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse" *ngIf="authService.isLoggedIn" >
+        <ul class="nav navbar-nav navbar-right">
+          <li><p class="navbar-text"><a href="/conversations" class="navbar-link"><span class="badge">{{conversationService.getSocketId()}}</span></a></p></li>
+          <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+          <li><a routerLink="/conversation" routerLinkActive="active">Conversations</a></li>
+          <li><p class="navbar-text"><span class="glyphicon glyphicon-{{conversationService.getConnectionStatus() ? 'ok' : 'remove'}}-circle"></span></p></li>
+          <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+             {{authService.getAuthenticatedUser().name}} <span class="caret"></span>
+           </a>
+           <ul class="dropdown-menu">
+             <li>{{authService.getAuthenticatedUser().id}}</li>
+             <li><a href="#" (click)="authService.logout()">Logout</a></li>
+           </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<br /><br /><br />
+
+<div class="container-fluid">
+
+  <app-notification [notification]="notification"></app-notification>
+
+  <router-outlet></router-outlet>
+
+</div>

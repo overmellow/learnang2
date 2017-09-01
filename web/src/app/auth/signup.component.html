@@ -1,0 +1,15 @@
+<div class="container">
+  <div class="form-group">
+    <label>Name:</label> <input class="form-control" #userName />
+  </div>
+  <div class="form-group">
+    <label>Email:</label> <input class="form-control" #userEmail />
+  </div>
+  <div class="form-group">
+    <label>Password:</label> <input type="password" class="form-control" #userPassword />
+  </div>
+  <button class="btn btn-success" (click)="signup(userName.value, userEmail.value, userPassword.value); userName.value=''; userEmail.value=''; userPassword.value='';">
+    Sign Up
+  </button>
+  <a routerLink="/authentication">Log In</a>
+</div>

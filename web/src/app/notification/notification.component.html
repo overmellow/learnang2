@@ -1,0 +1,5 @@
+<div class="alert alert-{{notification.color}} alert-dismissible" role="alert" *ngIf="notification">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <!-- <strong>Warning!</strong> -->
+  <strong>{{notification.content}}</strong>
+</div>

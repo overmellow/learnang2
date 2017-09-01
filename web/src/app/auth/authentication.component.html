@@ -1,0 +1,14 @@
+<div class="container">
+  <div *ngIf="!authService.isLoggedIn">
+    <div class="form-group">
+      <label>Name:</label> <input class="form-control" value="mori" #userName />
+    </div>
+    <div class="form-group">
+      <label>Password:</label> <input type="password" class="form-control" value="1000" #userPassword />
+    </div>
+    <button class="btn btn-success" (click)="login(userName.value, userPassword.value); userName.value=''; userPassword.value='';">
+      Log In
+    </button>
+    <a routerLink="/signup">Sign Up</a>
+  </div>
+</div>
