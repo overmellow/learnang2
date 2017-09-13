@@ -44,7 +44,11 @@ module.exports = (function(){
       let receiverSocketId = this.findReceiverSocketIdByConversationPartnerId(receiverId[0]);
       if(!_.contains(roomSockets, receiverSocketId)){
          socket.to(receiverSocketId).emit('message', data)
+         //this.socketSendMessage(socket, receiverSocketId, 'message', data)
       }
+    },
+    socketSendMessage: function(socket, receiver, eventType, message){
+      socket.to(receiver).emit(eventType, message);
     }
   }
 })();

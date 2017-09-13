@@ -26,11 +26,11 @@ export class AppComponent {
   ngOnInit(): void {
     this.subscription = this.notificationService.getNotification().subscribe(notification => { this.notification = notification; });
 
-    let authenticationStatus = this.localstorageService.getData('authenticationStatus', false)
-    let authenticatedUser = this.localstorageService.getData('authenticatedUser', true)
-    let token = this.localstorageService.getData('token', false)
+    var authenticationStatus = this.localstorageService.getData('authenticationStatus', false)
+    var authenticatedUser = this.localstorageService.getData('authenticatedUser', true)
+    var token = this.localstorageService.getData('token', false)
     if(authenticationStatus){
-        this.authService.setAuthenticationStatus(authenticationStatus)
+      this.authService.setAuthenticationStatus(authenticationStatus)
     }
     if(authenticatedUser){
       this.authService.setAuthenticatedUser(authenticatedUser)
@@ -38,5 +38,5 @@ export class AppComponent {
     if(token){
       this.authService.setToken(token)
     }
-  }
+  } 
 }

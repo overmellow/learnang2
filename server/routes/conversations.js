@@ -10,6 +10,22 @@ var Message = require('../models/message');
 var ConversationService = require('../services/conversation')
 
 router
+// .get('/messages/:conversationid', function(req, res, next) {
+//   Conversation.findById(req.params.conversationid)
+//   .populate({
+//     path: 'myMessages',
+//     model: 'MyMessage',
+//    	populate: {
+//    		path: 'message',
+//    		model: 'Message'
+//    	}})
+//   .exec()
+//   .then(function(conversation) {
+//     console.log(conversation)
+//     res.json(conversation);
+//   })
+// })
+
 .get('/messages/:conversationid', function(req, res, next) {
   Conversation.findById(req.params.conversationid)
   .populate('messages')
@@ -40,11 +56,10 @@ router
 
 .delete('/delete/:conversationid', function(req, res, next) {
   Conversation.findById(req.params.conversationid, function(err, conversation){
-    //console.log(conversation)
     conversation.conversationPartners.forEach(function(conversationPartnerId){
       User.findById(conversationPartnerId, function(err, user) {
-        let index = user.conversations.indexOf(req.params.conversationid)
-        user.conversations.splice(index, 1)
+        let index = _.findIndex(_.pluck(user.myConversations, 'conversation'), {_id: req.params.conversationid});
+        user.myConversations.splice(index, 1)
         user.save();
       })
     })
@@ -85,24 +100,42 @@ router
    })
  })
 
-.get('/', function(req, res) {
-  User.findById(req.decoded._id)
-  .populate({
-  	path: 'conversations',
-  	populate: {
-  		path: 'conversationPartners',
-  		model: 'User',
-  		select: 'name email'}
-  	})
-  .exec()
-  .then(function(user){
-    user.conversations.forEach(function(conversation){
-      conversation.conversationPartners = _.without(conversation.conversationPartners, _.findWhere(conversation.conversationPartners, {
-        id: req.decoded._id
-      }));
-    })
-    res.json(user.conversations);
-  })
-})
+ .get('/', function(req, res) {
+   User.findById(req.decoded._id)
+    .populate({ path: 'myConversations.conversation', select: 'conversationPartners', populate: {
+      path: 'conversationPartners',
+      model: 'User',
+      select: 'name email'
+    }})
+   .exec()
+   .then(function(user){
+     user.myConversations.forEach(function(myConversation){
+       myConversation.conversation.conversationPartners = _.without(myConversation.conversation.conversationPartners, _.findWhere(myConversation.conversation.conversationPartners, {
+         id: req.decoded._id
+       }));
+     })
+     res.json(user.myConversations);
+   })
+ })
+
+// .get('/', function(req, res) {
+//   User.findById(req.decoded._id)
+//   .populate({
+//   	path: 'conversations',
+//   	populate: {
+//   		path: 'conversationPartners',
+//   		model: 'User',
+//   		select: 'name email'}
+//   	})
+//   .exec()
+//   .then(function(user){
+//     user.conversations.forEach(function(conversation){
+//       conversation.conversationPartners = _.without(conversation.conversationPartners, _.findWhere(conversation.conversationPartners, {
+//         id: req.decoded._id
+//       }));
+//     })
+//     res.json(user.conversations);
+//   })
+// })
 
 module.exports = router;

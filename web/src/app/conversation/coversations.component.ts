@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 
 import { Conversation } from './conversation';
 import { Contact } from './contact';
+import { MyConversation } from './my-conversation';
 
 import { ConversationService } from './conversation.service';
 import { AuthService } from '../auth/auth.service';
@@ -23,6 +24,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   //connectionStatus: Boolean = false;
   conversations: Conversation[] = [];
   selectedConversation = null;
+  myConversations: MyConversation[] = [];
+  selectedMyConversation = null;
 
   constructor(
     private conversationService: ConversationService,
@@ -52,7 +55,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   getConversations(): void {
-    this.conversationService.getConversations().subscribe(res => this.conversations = res);
+    this.conversationService.getConversations().subscribe(res => this.myConversations = res);
+    //this.conversationService.getConversations().subscribe(res => this.conversations = res);
   }
 
   createNewConversation(){
@@ -74,34 +78,58 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         console.log(data)
         if(data['conversationType'] == 'newConversation'){
           if(data['newConversationType'] == 'creater') {
-            this.selectedConversation._id = data['conversationId'];
-            this.selectedConversation.conversationType = 'existingConversation';
-            this.conversations.push(this.selectedConversation)
+            this.selectedMyConversation.conversation._id = data['conversationId'];
+            this.selectedMyConversation.conversation.conversationType = 'existingConversation';
+            this.myConversations.push(this.selectedMyConversation)
           }
           else if (data['newConversationType'] == 'receiver') {
             var newConversation = new Conversation();
             newConversation = data['conversation'];
             newConversation['actualmessages'] = []
-            this.conversations.push(newConversation)
+            let myNewConversation = new MyConversation();
+            myNewConversation.conversation = newConversation;
+            this.myConversations.push(myNewConversation)
           }
         }
       })
   }
 
+  // getConversationsModerator(): void {
+  //   var that = this
+  //   this.conversationService.getConversationsModeratorObservable()
+  //     .subscribe(data => {
+  //       console.log(data)
+  //       if(data['conversationType'] == 'newConversation'){
+  //         if(data['newConversationType'] == 'creater') {
+  //           this.selectedConversation._id = data['conversationId'];
+  //           this.selectedConversation.conversationType = 'existingConversation';
+  //           this.conversations.push(this.selectedConversation)
+  //         }
+  //         else if (data['newConversationType'] == 'receiver') {
+  //           var newConversation = new Conversation();
+  //           newConversation = data['conversation'];
+  //           newConversation['actualmessages'] = []
+  //           this.conversations.push(newConversation)
+  //         }
+  //       }
+  //     })
+  // }
+
   getMessages(): void {
     this.conversationService.getMessagesObservable()
       .subscribe(message => {
         console.log(message)
-        let conversationIndex = _.findIndex(this.conversations, {_id: message['conversationId']});
-        if(this.selectedConversation == this.conversations[conversationIndex]){
-          this.selectedConversation.actualmessages.push(message);
+        let conversationIndex = _.findIndex(_.pluck(this.myConversations, 'conversation'), { _id : message['conversationId'] });
+        if(this.selectedMyConversation == this.myConversations[conversationIndex]){
+          this.selectedMyConversation.conversation.actualmessages.push(message);
         } else {
-            console.log(this.conversations[conversationIndex])
-          if(this.conversations[conversationIndex]['newMessageNotification'] == undefined){
-            this.conversations[conversationIndex]['newMessageNotification'] = 1;
+          // console.log(this.myConversations[conversationIndex])
+          if(this.myConversations[conversationIndex].conversation['newMessageNotification'] == undefined){
+            this.myConversations[conversationIndex].conversation['newMessageNotification'] = 1;            
           } else {
-            this.conversations[conversationIndex]['newMessageNotification']++;
+            this.myConversations[conversationIndex].conversation['newMessageNotification']++;
           }
+          this.myConversations[conversationIndex].conversation['actualNewMessageNotification'] = message['message'];
         }
       })
   }
@@ -110,15 +138,15 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     if (!msg ) { return; }
 
     var newMessage = {
-      conversationId: this.selectedConversation._id,
-      conversationType: this.selectedConversation.conversationType ? this.selectedConversation.conversationType : 'existingConversation',
+      conversationId: this.selectedMyConversation.conversation._id,
+      conversationType: this.selectedMyConversation.conversation.conversationType ? this.selectedMyConversation.conversation.conversationType : 'existingConversation',
       message: msg,
       messageType: 'text',
       senderId: this.authService.loggedInUserInfo.user.id,
-      receiverId: this.selectedConversation.conversationPartners[0]._id,
+      receiverId: this.selectedMyConversation.conversation.conversationPartners[0]._id,
       url: '',
     }
-    this.selectedConversation.actualmessages.push(newMessage)
+    //this.selectedMyConversation.conversation.actualmessages.push(newMessage)
 
     this.conversationService.sendMessage(newMessage);
   }
@@ -127,45 +155,47 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.conversationService.joinConversation(conversationId)
   }
 
-  onSelect(conversation){
-    this.selectedConversation = conversation;
-    this.selectedConversation.newMessageNotification = undefined;
-    this.joinConversation(conversation._id);
-    this.conversationService.getMessages(conversation._id)
-      .subscribe(messages => this.selectedConversation.actualmessages = messages)
+  onMySelect(myConversation){
+    this.selectedMyConversation = myConversation;   
+    this.selectedMyConversation.conversation.newMessageNotification = undefined;
+    this.selectedMyConversation.conversation.actualNewMessageNotification = undefined;
+    this.joinConversation(myConversation.conversation._id);
+    this.conversationService.getMessages(myConversation.conversation._id)
+      .subscribe(messages => {this.selectedMyConversation.conversation.actualmessages = messages})
   }
 
   onSelectedContact(contact: Contact){
     var that = this;
     this.conversationService.findConversationByContactId(contact._id)
       .subscribe(conversation => {
-        if(_.isEmpty(conversation)){
+        if(_.isEmpty(conversation)){          
           let tempConversation = new Conversation();
           tempConversation._id = Math.random().toString(36);
           tempConversation.conversationType = 'newConversation';
           tempConversation['conversationPartners'] = [];
           tempConversation['conversationPartners'].push({_id: contact._id, name: contact.name})
           tempConversation['actualmessages'] = [];
-          this.selectedConversation = tempConversation;
+          let myTempConversation = new MyConversation();
+          myTempConversation.conversation = tempConversation;
+          this.selectedMyConversation = myTempConversation;
         } else {
-          let theIndexOfConversation = _.findIndex(that.conversations, { _id: conversation[0]._id });
-          that.onSelect(that.conversations[theIndexOfConversation])
+          let theIndexOfConversation = _.findIndex(_.pluck(that.myConversations, 'conversation'), { _id: conversation[0]._id });
+          that.onMySelect(that.myConversations[theIndexOfConversation])
         }
       })
   }
 
   clearMessages(conversationId){
     this.conversationService.clearMessages(conversationId).subscribe(() => {
-     this.selectedConversation.actualmessages = [];
+     this.selectedMyConversation.conversation.actualmessages = [];
     });
   }
 
   deleteConversation(conversationId){
     this.conversationService.deleteConversation(conversationId).subscribe(() => {
-     this.selectedConversation = null;
-     let conversationIndex = _.findIndex(this.conversations, {_id: conversationId});
-     this.conversations.splice(conversationIndex, 1);
-
+     this.selectedMyConversation = null;
+     let conversationIndex = _.findIndex(_.pluck(this.myConversations, 'conversation'), {_id: conversationId});
+     this.myConversations.splice(conversationIndex, 1);
     });
   }
 }
