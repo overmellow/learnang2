@@ -56,20 +56,19 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   getConversations(): void {
     this.conversationService.getConversations().subscribe(res => this.myConversations = res);
-    //this.conversationService.getConversations().subscribe(res => this.conversations = res);
   }
 
-  createNewConversation(){
-    let newConversationModeratorMessage = {
-      conversationType: 'newConversation',
-      tempConversationId: this.selectedConversation._id ,
-      senderId: this.authService.loggedInUserInfo.user.id,
-      receiverId: this.selectedConversation.conversationPartners[0]._id
-    }
+  // createNewConversation(){
+  //   let newConversationModeratorMessage = {
+  //     conversationType: 'newConversation',
+  //     tempConversationId: this.selectedConversation._id ,
+  //     senderId: this.authService.loggedInUserInfo.user.id,
+  //     receiverId: this.selectedConversation.conversationPartners[0]._id
+  //   }
 
-    this.conversationService.createNewConversation(newConversationModeratorMessage)
-      .subscribe(res => console.log(res));
-  }
+  //   this.conversationService.createNewConversation(newConversationModeratorMessage)
+  //     .subscribe(res => console.log(res));
+  // }
 
   getConversationsModerator(): void {
     var that = this
@@ -94,43 +93,22 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       })
   }
 
-  // getConversationsModerator(): void {
-  //   var that = this
-  //   this.conversationService.getConversationsModeratorObservable()
-  //     .subscribe(data => {
-  //       console.log(data)
-  //       if(data['conversationType'] == 'newConversation'){
-  //         if(data['newConversationType'] == 'creater') {
-  //           this.selectedConversation._id = data['conversationId'];
-  //           this.selectedConversation.conversationType = 'existingConversation';
-  //           this.conversations.push(this.selectedConversation)
-  //         }
-  //         else if (data['newConversationType'] == 'receiver') {
-  //           var newConversation = new Conversation();
-  //           newConversation = data['conversation'];
-  //           newConversation['actualmessages'] = []
-  //           this.conversations.push(newConversation)
-  //         }
-  //       }
-  //     })
-  // }
-
   getMessages(): void {
     this.conversationService.getMessagesObservable()
       .subscribe(message => {
         console.log(message)
         let conversationIndex = _.findIndex(_.pluck(this.myConversations, 'conversation'), { _id : message['conversationId'] });
         if(this.selectedMyConversation == this.myConversations[conversationIndex]){
-          this.selectedMyConversation.conversation.actualmessages.push(message);
+          this.selectedMyConversation.actualmessages.push(message);
         } else {
-          // console.log(this.myConversations[conversationIndex])
-          if(this.myConversations[conversationIndex].conversation['newMessageNotification'] == undefined){
-            this.myConversations[conversationIndex].conversation['newMessageNotification'] = 1;            
+          if(this.myConversations[conversationIndex].newMessageNotification == undefined){
+            this.myConversations[conversationIndex].newMessageNotification = 1;   
           } else {
-            this.myConversations[conversationIndex].conversation['newMessageNotification']++;
+            this.myConversations[conversationIndex].newMessageNotification++;
           }
-          this.myConversations[conversationIndex].conversation['actualNewMessageNotification'] = message['message'];
+          this.myConversations[conversationIndex].actualNewMessageNotification = message['message'];
         }
+        console.log(this.myConversations)
       })
   }
 
@@ -157,18 +135,18 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   onMySelect(myConversation){
     this.selectedMyConversation = myConversation;   
-    this.selectedMyConversation.conversation.newMessageNotification = undefined;
-    this.selectedMyConversation.conversation.actualNewMessageNotification = undefined;
+    this.selectedMyConversation.newMessageNotification = undefined;
+    this.selectedMyConversation.actualNewMessageNotification = undefined;
     this.joinConversation(myConversation.conversation._id);
     this.conversationService.getMessages(myConversation.conversation._id)
-      .subscribe(messages => {this.selectedMyConversation.conversation.actualmessages = messages})
+      .subscribe(messages => {this.selectedMyConversation.actualmessages = messages})
   }
 
   onSelectedContact(contact: Contact){
     var that = this;
     this.conversationService.findConversationByContactId(contact._id)
-      .subscribe(conversation => {
-        if(_.isEmpty(conversation)){          
+      .subscribe(conversation => {       
+        if(_.isEmpty(conversation)){
           let tempConversation = new Conversation();
           tempConversation._id = Math.random().toString(36);
           tempConversation.conversationType = 'newConversation';
@@ -178,7 +156,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
           let myTempConversation = new MyConversation();
           myTempConversation.conversation = tempConversation;
           this.selectedMyConversation = myTempConversation;
-        } else {
+        } else {        
           let theIndexOfConversation = _.findIndex(_.pluck(that.myConversations, 'conversation'), { _id: conversation[0]._id });
           that.onMySelect(that.myConversations[theIndexOfConversation])
         }

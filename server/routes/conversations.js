@@ -46,8 +46,7 @@ router
 })
 
 .get('/findby/:contactid', function(req, res, next) {
-  Conversation.find()
-  .where('conversationPartners').equals(req.params.contactid)
+  Conversation.find({ conversationPartners : { $all : [req.params.contactid, req.decoded._id] } } )
   .exec()
   .then(function(conversation) {
     res.json(conversation);

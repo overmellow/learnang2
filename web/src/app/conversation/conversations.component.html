@@ -11,14 +11,10 @@
         <a *ngFor="let myConversation of myConversations" class="list-group-item" (click)="onMySelect(myConversation)" [class.active]="myConversation === selectedMyConversation">
           <h5 class="list-group-item-heading">
             {{myConversation.conversation.conversationPartners[0].name}}
-            <span class="badge" *ngIf="myConversation.conversation.newMessageNotification">{{myConversation.conversation.newMessageNotification}}</span>
+            <span class="badge" *ngIf="myConversation.newMessageNotification">{{myConversation.newMessageNotification}}</span>
           </h5>
-          <p class="list-group-item-text" *ngIf="myConversation.conversation.actualNewMessageNotification">{{myConversation.conversation.actualNewMessageNotification}}</p>         
+          <p class="list-group-item-text" *ngIf="myConversation.actualNewMessageNotification">{{myConversation.actualNewMessageNotification}}</p>         
         </a>
-        <!-- <a *ngFor="let conversation of conversations" class="list-group-item" (click)="onSelect(conversation)" [class.active]="conversation === selectedConversation">
-          {{conversation.conversationPartners[0].name}}
-          <span class="badge" *ngIf="conversation.newMessageNotification">{{conversation.newMessageNotification}}</span>
-        </a> -->
       </div>
 
     </div>
@@ -27,9 +23,9 @@
 
     <div class="panel panel-default">
       <div class="panel-heading" *ngIf="selectedMyConversation">
-        {{selectedMyConversation.conversation.conversationPartners[0].name}} - {{selectedMyConversation.conversation._id}} - 
+        {{selectedMyConversation.conversation.conversationPartners[0].name}} <!-- - {{selectedMyConversation.conversation._id}} - -->
         <div class="btn-group pull-right" role="group">
-          <a class="btn btn-default btn-xs" (click)="createNewConversation()" >Create New Conversation</a>
+          <!-- <a class="btn btn-default btn-xs" (click)="createNewConversation()" >Create New Conversation</a> -->
          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="glyphicon glyphicon-option-vertical"></span>
          </button>
@@ -41,7 +37,7 @@
       </div>
 
       <div class="panel-body conversation-div" id="mydiv" *ngIf="selectedMyConversation">
-        <div class="message-div" *ngFor="let actualMessage of selectedMyConversation.conversation.actualmessages" [class.pull-right]="authService.loggedInUserInfo.user.id == actualMessage.senderId">
+        <div class="message-div" *ngFor="let actualMessage of selectedMyConversation.actualmessages" [class.pull-right]="authService.loggedInUserInfo.user.id == actualMessage.senderId">
           <span class="message-span" [ngClass]="authService.loggedInUserInfo.user.id == actualMessage.senderId ? 'my-message' : 'not-my-message'">{{actualMessage.message}}</span>
         </div>
       </div>
@@ -61,4 +57,5 @@
 
   </div>
 </div>
+
 <new-conversation (onSelectedContact)="onSelectedContact($event)"></new-conversation>

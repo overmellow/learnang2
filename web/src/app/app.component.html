@@ -11,7 +11,7 @@
         <a class="navbar-brand" href="#">{{title}}</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse" *ngIf="authService.isLoggedIn" >
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right">          
           <li><p class="navbar-text"><a href="/conversations" class="navbar-link"><span class="badge">{{conversationService.getSocketId()}}</span></a></p></li>
           <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
           <li><a routerLink="/conversation" routerLinkActive="active">Conversations</a></li>
@@ -21,7 +21,7 @@
              {{authService.getAuthenticatedUser().name}} <span class="caret"></span>
            </a>
            <ul class="dropdown-menu">
-             <li>{{authService.getAuthenticatedUser().id}}</li>
+             <!-- <li>{{authService.getAuthenticatedUser().id}}</li> -->
              <li><a href="#" (click)="authService.logout()">Logout</a></li>
            </ul>
           </li>
