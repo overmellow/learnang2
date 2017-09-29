@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      About
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-input  type="text" placeholder="apiUrl" [(ngModel)]="apiUrl" ></ion-input>
+  </ion-item>
+  <br />
+  <button ion-button block (click)="saveApiUrl()">Save Api Url</button>
+</ion-content>

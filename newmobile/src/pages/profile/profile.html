@@ -1,0 +1,64 @@
+<!--
+  Generated template for the ProfilePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Profile</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding *ngIf="!authProvider.getAuthenticationStatus()">
+  <ion-segment [(ngModel)]="authType">
+    <ion-segment-button value="login">
+      Login
+    </ion-segment-button>
+    <ion-segment-button value="signup">
+      Sign Up
+    </ion-segment-button>
+  </ion-segment>
+
+  <div [ngSwitch]="authType">
+    <ion-list *ngSwitchCase="'login'">
+      <ion-item>
+          <ion-label fixed>name</ion-label>
+          <ion-input type="text" value="mori" #userName ></ion-input>
+        </ion-item>
+      
+      <ion-item>
+        <ion-label fixed>Password</ion-label>
+        <ion-input type="password" value="1000" #userPassword></ion-input>
+      </ion-item>
+    
+      <button ion-button block (click)="login(userName.value, userPassword.value); userName.value=''; userPassword.value='';">Login</button>
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'signup'">
+      <ion-item>
+        <ion-label fixed>name</ion-label>
+        <ion-input type="text" value="mori" #userName ></ion-input>
+      </ion-item>
+    
+      <ion-item>
+        <ion-label fixed>Email</ion-label>
+        <ion-input type="text" value="mori@mail.com" #userEmail></ion-input>
+      </ion-item>
+
+      <ion-item>
+          <ion-label fixed>Password</ion-label>
+          <ion-input type="password" value="1000" #userPassword></ion-input>
+        </ion-item>
+    
+      <button ion-button block (click)="login(userName.value, userEmail.value, userPassword.value); userName.value=''; userEmail.value=''; userPassword.value='';">Sign Up</button>
+    </ion-list>
+  </div>
+</ion-content>
+
+<ion-content *ngIf="authProvider.getAuthenticationStatus()" padding>
+    <button ion-button block (click)="logout()">Log Out</button>
+</ion-content>
